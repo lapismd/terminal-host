@@ -32,17 +32,19 @@ class FakePty extends EventEmitter implements PtyLike {
 
 function createService(workspace = "/tmp/terminal-host-sessions") {
   const spawned: FakePty[] = [];
+  const requests: SpawnPtySessionRequest[] = [];
   const service = createTerminalSessionService({
     workspace,
     spawn: (request: SpawnPtySessionRequest) => {
       const fake = new FakePty();
       spawned.push(fake);
+      requests.push(request);
       fake.on("data", (chunk: Buffer) => request.onData?.(chunk));
       fake.on("exit", (event: { exitCode: number }) => request.onExit?.(event));
       return fake;
     },
   });
-  return { service, spawned };
+  return { service, spawned, requests };
 }
 
 describe("createTerminalSessionService", () => {
@@ -85,6 +87,22 @@ describe("createTerminalSessionService", () => {
   it("rejects a cwd that escapes the workspace", () => {
     const { service } = createService("/tmp/terminal-host-root");
     expect(() => service.create({ cwd: "../escape" })).toThrow(/workspace/i);
+    service.close();
+  });
+
+  it("inherits PATH and uses a login-interactive shell", () => {
+    const { service, requests } = createService();
+    service.create({ cols: 80, rows: 24 });
+    expect(requests[0]?.env?.PATH).toBe(process.env.PATH);
+    if (process.platform !== "win32") {
+      expect(requests[0]?.args).toEqual(["-il"]);
+    }
+    service.close();
+  });
+
+  it("rejects a relative shell override", () => {
+    const { service } = createService();
+    expect(() => service.create({ shell: "zsh" })).toThrow(/absolute path/i);
     service.close();
   });
 });

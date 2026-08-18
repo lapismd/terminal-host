@@ -167,6 +167,7 @@ function dispatchCommand(
   if (command === "terminal_session_create") {
     return sessions.create({
       cwd: typeof payload.cwd === "string" ? payload.cwd : undefined,
+      shell: typeof payload.shell === "string" ? payload.shell : undefined,
       cols: asPositive(payload.cols),
       rows: asPositive(payload.rows),
     });

@@ -5,7 +5,8 @@ bridge, and the `lapis-terminal-host` CLI. The development-only `serve:local`
 package script seeds an ignored `.env` `LAPIS_TERMINAL_HOST_TOKEN` when
 missing, then starts the existing `serve` command with that token. It is a
 non-authoritative execution transport: vault policy and workspace layout remain
-in the consuming application.
+in the consuming application. Public exports include the session service plus
+helpers that inherit the host environment and resolve a login-interactive shell.
 
 ## Requirements
 

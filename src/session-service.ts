@@ -1,7 +1,7 @@
 import { randomUUID } from "node:crypto";
 import { resolveSessionCwd } from "./cwd";
 import { PtySession, type PtyLike, type SpawnPty } from "./pty-session";
-import { resolveInteractiveShellCommand } from "./shell";
+import { inheritSessionEnvironment, resolveInteractiveShellCommand } from "./shell";
 
 const MAX_SNAPSHOT_BYTES = 256 * 1024;
 
@@ -24,6 +24,7 @@ export type TerminalSessionListener = {
 
 export type CreateTerminalSessionRequest = {
   cwd?: string;
+  shell?: string;
   cols?: number;
   rows?: number;
 };
@@ -64,7 +65,11 @@ export function createTerminalSessionService(options: {
     const cols = positive(request.cols, 120);
     const rows = positive(request.rows, 40);
     const sessionId = randomUUID();
-    const shell = resolveInteractiveShellCommand(options.env);
+    const shell = resolveInteractiveShellCommand(
+      options.env,
+      process.platform,
+      request.shell,
+    );
     const entry: SessionEntry = {
       summary: {
         sessionId,
@@ -80,16 +85,16 @@ export function createTerminalSessionService(options: {
       listeners: new Map(),
       nextListenerId: 1,
     };
-    const process = spawn({
+    const pty = spawn({
       binary: shell.binary,
       args: shell.args,
       cwd,
-      env: {
+      env: inheritSessionEnvironment({
         ...options.env,
         TERM: "xterm-256color",
         COLORTERM: "truecolor",
         TERM_PROGRAM: "lapis-terminal",
-      },
+      }),
       cols,
       rows,
       onData: (chunk) => {
@@ -108,8 +113,8 @@ export function createTerminalSessionService(options: {
         }
       },
     });
-    entry.process = process;
-    entry.summary.pid = process.pid;
+    entry.process = pty;
+    entry.summary.pid = pty.pid;
     entries.set(sessionId, entry);
     return summarize(entry);
   };

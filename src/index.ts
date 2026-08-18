@@ -7,7 +7,7 @@ export {
   type TerminalSessionSummary,
 } from "./session-service";
 export { PtySession, type PtyLike, type SpawnPty, type SpawnPtySessionRequest } from "./pty-session";
-export { resolveInteractiveShellCommand } from "./shell";
+export { inheritSessionEnvironment, resolveInteractiveShellCommand } from "./shell";
 export { isPathWithinRoot, resolveSessionCwd } from "./cwd";
 export {
   DEFAULT_SERVE_BIND,

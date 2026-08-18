@@ -135,6 +135,9 @@ export function createTerminalSessionService(options: {
       if (!entry?.process || entry.summary.status !== "running") return false;
       const nextCols = positive(cols, entry.summary.cols);
       const nextRows = positive(rows, entry.summary.rows);
+      if (nextCols === entry.summary.cols && nextRows === entry.summary.rows) {
+        return true;
+      }
       entry.process.resize(nextCols, nextRows);
       entry.summary.cols = nextCols;
       entry.summary.rows = nextRows;

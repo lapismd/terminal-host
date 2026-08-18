@@ -89,6 +89,7 @@ export function createTerminalRuntimeBridge(
   const exitListeners = new Set<(event: TerminalExitEvent) => void>();
   const pending = new Map<string, Pending>();
   const attached = new Map<string, SessionSockets>();
+  const attaching = new Map<string, Promise<void>>();
   const clientId = `web-${Math.random().toString(36).slice(2, 10)}`;
   let nextId = 1;
   let disposed = false;
@@ -166,34 +167,63 @@ export function createTerminalRuntimeBridge(
         () => undefined,
       );
     }
-    const io = new WebSocket(
-      sessionPlaneUrl(origin, "io", config.token, sessionId, clientId),
-    );
-    io.binaryType = "arraybuffer";
+    const inFlight = attaching.get(sessionId);
+    if (inFlight) return inFlight;
+    const work = attachNewSession(sessionId).finally(() => {
+      attaching.delete(sessionId);
+    });
+    attaching.set(sessionId, work);
+    return work;
+  }
+
+  async function attachNewSession(sessionId: string): Promise<void> {
     const control = new WebSocket(
       sessionPlaneUrl(origin, "control", config.token, sessionId, clientId),
     );
-    attached.set(sessionId, { io, control });
-    io.addEventListener("message", (event) => {
-      emitOutput(sessionId, bytesToBase64(event.data as ArrayBuffer | string));
-    });
-    control.addEventListener("message", (event) => {
-      const parsed = JSON.parse(String(event.data)) as Record<string, unknown>;
-      if (parsed.type === "restore" && typeof parsed.snapshot === "string") {
-        emitOutput(sessionId, textToBase64(parsed.snapshot));
-      }
-      if (parsed.type === "exit") {
-        emitExit(sessionId, typeof parsed.code === "number" ? parsed.code : null);
-      }
-    });
-    return Promise.all([waitOpen(io), waitOpen(control)])
-      .then(() => undefined)
-      .catch((error) => {
-        attached.delete(sessionId);
-        io.close();
-        control.close();
-        throw error;
+    let restoreSettled = false;
+    const restoreReady = new Promise<string>((resolve, reject) => {
+      control.addEventListener("message", (event) => {
+        const parsed = JSON.parse(String(event.data)) as Record<string, unknown>;
+        if (parsed.type === "restore" && !restoreSettled) {
+          restoreSettled = true;
+          resolve(typeof parsed.snapshot === "string" ? parsed.snapshot : "");
+        }
+        if (parsed.type === "exit") {
+          emitExit(sessionId, typeof parsed.code === "number" ? parsed.code : null);
+        }
       });
+      control.addEventListener(
+        "error",
+        () => reject(new Error("terminal-host session plane error")),
+        { once: true },
+      );
+      control.addEventListener(
+        "close",
+        () => {
+          if (!restoreSettled) reject(new Error("terminal-host session plane closed"));
+        },
+        { once: true },
+      );
+    });
+    let io: WebSocket | undefined;
+    try {
+      await waitOpen(control);
+      const snapshot = await restoreReady;
+      if (snapshot) emitOutput(sessionId, textToBase64(snapshot));
+      io = new WebSocket(
+        sessionPlaneUrl(origin, "io", config.token, sessionId, clientId),
+      );
+      io.binaryType = "arraybuffer";
+      io.addEventListener("message", (event) => {
+        emitOutput(sessionId, bytesToBase64(event.data as ArrayBuffer | string));
+      });
+      await waitOpen(io);
+      attached.set(sessionId, { io, control });
+    } catch (error) {
+      io?.close();
+      control.close();
+      throw error;
+    }
   }
 
   function closeAttached(): void {

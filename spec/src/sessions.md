@@ -12,3 +12,4 @@ outside this package.
 | TH-SESS-003 | The session service MUST support create, write, resize, stop, list, attach, and a bounded restore snapshot of recent output. Closing a session MUST kill the PTY process group. |
 | TH-SESS-004 | Multiple viewers of one session MUST receive the same output. A slow viewer MUST pause shared output until acknowledgements drain or that viewer disconnects. |
 | TH-SESS-005 | Electron and a Node backend MUST be able to embed `createTerminalSessionService()` without starting the CLI. Workspace root for desktop MUST be the vault filesystem path supplied by the host. |
+| TH-SESS-006 | `resize` MUST return success and MUST NOT call the PTY when cols and rows are already the session size. |

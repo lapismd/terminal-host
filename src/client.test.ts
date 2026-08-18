@@ -41,6 +41,36 @@ describe("terminal-runtime web client", () => {
     });
   });
 
+  it("emits spawn output once after control restore then io", async () => {
+    sessions.close();
+    sessions = createTerminalSessionService({
+      workspace: "/tmp/terminal-host-client",
+      spawn: (request: SpawnPtySessionRequest) => {
+        request.onData(Buffer.from("PROMPT"));
+        return new EchoPty(request.onData);
+      },
+    });
+    server = await startTerminalRuntimeServer({
+      port: 0,
+      bind: "127.0.0.1",
+      token: TOKEN,
+      workspace: "/tmp/terminal-host-client",
+      sessions,
+    });
+    const bridge = createTerminalRuntimeBridge({
+      url: `ws://127.0.0.1:${server.port}`,
+      token: TOKEN,
+    });
+    const chunks: string[] = [];
+    bridge.onTerminalOutput?.((event) => {
+      chunks.push(Buffer.from(event.data, "base64").toString("utf8"));
+    });
+    await bridge.invoke("terminal_session_create", { cols: 80, rows: 24 });
+    await waitFor(() => chunks.join("").includes("PROMPT"));
+    expect(chunks.join("")).toBe("PROMPT");
+    bridge.dispose();
+  });
+
   it("attaches io and control planes after create and forwards output", async () => {
     server = await startTerminalRuntimeServer({
       port: 0,

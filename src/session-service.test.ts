@@ -56,6 +56,8 @@ describe("createTerminalSessionService", () => {
     expect(service.list()).toHaveLength(1);
     expect(service.write(created.sessionId, "ls\n")).toBe(true);
     expect(spawned[0]?.written).toEqual(["ls\n"]);
+    expect(service.resize(created.sessionId, 80, 24)).toBe(true);
+    expect(spawned[0]?.resized).toEqual([]);
     expect(service.resize(created.sessionId, 100, 30)).toBe(true);
     expect(spawned[0]?.resized).toEqual([{ cols: 100, rows: 30 }]);
     const stopped = service.stop(created.sessionId);

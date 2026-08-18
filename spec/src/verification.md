@@ -12,11 +12,13 @@
 | TH-PROTO-005 | Implemented | ws-server attaches `/terminal/io` and `/terminal/control` with session and client ids |
 | TH-PROTO-006 | Implemented | client.ts exports attach helpers; package docs forbid plugin runtime imports |
 | TH-PROTO-007 | Implemented | client test reattaches io after dispose; write/resize reject ok:false; PTY exit and ok:false emit onTerminalExit |
+| TH-PROTO-008 | Implemented | client attaches control, emits a non-empty restore, then opens io; spawn output appears once |
 | TH-SESS-001 | Implemented | shell.ts uses `$SHELL -il`, inherits PATH, and rejects a relative shell override |
 | TH-SESS-002 | Implemented | cwd tests reject paths that escape the workspace root |
 | TH-SESS-003 | Implemented | session-service tests cover create, write, resize, stop, list, attach, and snapshot |
 | TH-SESS-004 | Implemented | session-service attach tests fan output to two listeners |
 | TH-SESS-005 | Implemented | createTerminalSessionService is the public embed API used by tests without the CLI |
+| TH-SESS-006 | Implemented | session-service resize is a no-op when cols and rows are unchanged |
 | TH-GOV-001 | Implemented | spec/book.toml and spec:build |
 | TH-GOV-002 | Implemented | spec-validator mapped spec-first rules |
 | TH-GOV-003 | Implemented | one verification row per requirement ID |

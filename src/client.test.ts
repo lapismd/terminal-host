@@ -103,6 +103,28 @@ describe("terminal-runtime web client", () => {
     expect(chunks.join("")).toContain("out:ls");
     second.dispose();
   });
+
+  it("rejects resize of an unknown session", async () => {
+    server = await startTerminalRuntimeServer({
+      port: 0,
+      bind: "127.0.0.1",
+      token: TOKEN,
+      workspace: "/tmp/terminal-host-client",
+      sessions,
+    });
+    const bridge = createTerminalRuntimeBridge({
+      url: `ws://127.0.0.1:${server.port}`,
+      token: TOKEN,
+    });
+    await expect(
+      bridge.invoke("terminal_session_resize", {
+        sessionId: "missing-session",
+        cols: 80,
+        rows: 24,
+      }),
+    ).rejects.toThrow(/unavailable|closed|session/i);
+    bridge.dispose();
+  });
 });
 
 async function waitFor(predicate: () => boolean): Promise<void> {

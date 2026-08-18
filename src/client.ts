@@ -140,11 +140,19 @@ export function createTerminalRuntimeBridge(
 
   function waitOpen(socket: WebSocket): Promise<void> {
     if (socket.readyState === WebSocket.OPEN) return Promise.resolve();
+    if (socket.readyState === WebSocket.CLOSING || socket.readyState === WebSocket.CLOSED) {
+      return Promise.reject(new Error("terminal-host session plane closed"));
+    }
     return new Promise((resolve, reject) => {
       socket.addEventListener("open", () => resolve(), { once: true });
       socket.addEventListener(
         "error",
         () => reject(new Error("terminal-host session plane error")),
+        { once: true },
+      );
+      socket.addEventListener(
+        "close",
+        () => reject(new Error("terminal-host session plane closed")),
         { once: true },
       );
     });
@@ -178,7 +186,14 @@ export function createTerminalRuntimeBridge(
         emitExit(sessionId, typeof parsed.code === "number" ? parsed.code : null);
       }
     });
-    return Promise.all([waitOpen(io), waitOpen(control)]).then(() => undefined);
+    return Promise.all([waitOpen(io), waitOpen(control)])
+      .then(() => undefined)
+      .catch((error) => {
+        attached.delete(sessionId);
+        io.close();
+        control.close();
+        throw error;
+      });
   }
 
   function closeAttached(): void {
@@ -224,6 +239,15 @@ export function createTerminalRuntimeBridge(
         await attachSession(sessionId);
       }
       const result = (await sendCommand(command, payload)) as T;
+      if (
+        result &&
+        typeof result === "object" &&
+        "ok" in result &&
+        (result as { ok?: unknown }).ok === false
+      ) {
+        if (sessionId) attached.delete(sessionId);
+        throw new Error("Terminal session is unavailable");
+      }
       if (command === "terminal_session_create") {
         const createdId = (result as { sessionId?: string }).sessionId;
         if (createdId) await attachSession(createdId);

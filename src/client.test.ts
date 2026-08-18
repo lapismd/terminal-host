@@ -104,6 +104,83 @@ describe("terminal-runtime web client", () => {
     second.dispose();
   });
 
+  it("emits onTerminalExit when the PTY exits", async () => {
+    let triggerExit: (() => void) | undefined;
+    sessions.close();
+    sessions = createTerminalSessionService({
+      workspace: "/tmp/terminal-host-client",
+      spawn: (request: SpawnPtySessionRequest) => {
+        triggerExit = () => request.onExit?.({ exitCode: 0 });
+        return new EchoPty(request.onData);
+      },
+    });
+    server = await startTerminalRuntimeServer({
+      port: 0,
+      bind: "127.0.0.1",
+      token: TOKEN,
+      workspace: "/tmp/terminal-host-client",
+      sessions,
+    });
+    const bridge = createTerminalRuntimeBridge({
+      url: `ws://127.0.0.1:${server.port}`,
+      token: TOKEN,
+    });
+    const exits: Array<{ sessionId: string; code: number | null }> = [];
+    bridge.onTerminalExit?.((event) => {
+      exits.push({ sessionId: event.sessionId, code: event.code });
+    });
+    const created = await bridge.invoke<{ sessionId: string }>(
+      "terminal_session_create",
+      { cols: 80, rows: 24 },
+    );
+    triggerExit?.();
+    await waitFor(() => exits.some((event) => event.sessionId === created.sessionId));
+    expect(exits[0]).toEqual({ sessionId: created.sessionId, code: 0 });
+    bridge.dispose();
+  });
+
+  it("emits onTerminalExit when write reports ok:false", async () => {
+    let triggerExit: (() => void) | undefined;
+    sessions.close();
+    sessions = createTerminalSessionService({
+      workspace: "/tmp/terminal-host-client",
+      spawn: (request: SpawnPtySessionRequest) => {
+        triggerExit = () => request.onExit?.({ exitCode: 0 });
+        return new EchoPty(request.onData);
+      },
+    });
+    server = await startTerminalRuntimeServer({
+      port: 0,
+      bind: "127.0.0.1",
+      token: TOKEN,
+      workspace: "/tmp/terminal-host-client",
+      sessions,
+    });
+    const bridge = createTerminalRuntimeBridge({
+      url: `ws://127.0.0.1:${server.port}`,
+      token: TOKEN,
+    });
+    const exits: string[] = [];
+    bridge.onTerminalExit?.((event) => {
+      exits.push(event.sessionId);
+    });
+    const created = await bridge.invoke<{ sessionId: string }>(
+      "terminal_session_create",
+      { cols: 80, rows: 24 },
+    );
+    triggerExit?.();
+    await waitFor(() => exits.includes(created.sessionId));
+    exits.length = 0;
+    await expect(
+      bridge.invoke("terminal_session_write", {
+        sessionId: created.sessionId,
+        data: Buffer.from("x").toString("base64"),
+      }),
+    ).rejects.toThrow(/unavailable/i);
+    expect(exits).toEqual([created.sessionId]);
+    bridge.dispose();
+  });
+
   it("rejects resize of an unknown session", async () => {
     server = await startTerminalRuntimeServer({
       port: 0,

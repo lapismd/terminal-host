@@ -245,7 +245,10 @@ export function createTerminalRuntimeBridge(
         "ok" in result &&
         (result as { ok?: unknown }).ok === false
       ) {
-        if (sessionId) attached.delete(sessionId);
+        if (sessionId) {
+          attached.delete(sessionId);
+          emitExit(sessionId, null);
+        }
         throw new Error("Terminal session is unavailable");
       }
       if (command === "terminal_session_create") {

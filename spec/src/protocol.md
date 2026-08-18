@@ -13,3 +13,4 @@ session service in-process and MUST NOT require the renderer to hold the token.
 | TH-PROTO-004 | After handshake, the command socket MUST accept `terminal_session_create`, `terminal_session_list`, `terminal_session_write`, `terminal_session_resize`, and `terminal_session_stop`. It MUST NOT accept AI or ACP commands. |
 | TH-PROTO-005 | Remote I/O MUST use `/terminal/io` for binary PTY bytes and `/terminal/control` for JSON resize, stop, output_ack, restore, and exit. Both MUST require the same token and isolate viewers by `sessionId` plus `clientId`. |
 | TH-PROTO-006 | The `./client` export MAY register a web bridge from a URL and token. Consumer plugins MUST NOT import this package. |
+| TH-PROTO-007 | The web client MUST attach `/terminal/io` and `/terminal/control` before `terminal_session_write` or `terminal_session_resize` when those planes are not already open for the session. |

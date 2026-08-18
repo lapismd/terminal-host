@@ -214,10 +214,19 @@ export function createTerminalRuntimeBridge(
       },
     },
     async invoke<T>(command: string, payload?: Record<string, unknown>): Promise<T> {
+      const sessionId =
+        payload && typeof payload.sessionId === "string" ? payload.sessionId : "";
+      if (
+        sessionId &&
+        (command === "terminal_session_write" ||
+          command === "terminal_session_resize")
+      ) {
+        await attachSession(sessionId);
+      }
       const result = (await sendCommand(command, payload)) as T;
       if (command === "terminal_session_create") {
-        const sessionId = (result as { sessionId?: string }).sessionId;
-        if (sessionId) await attachSession(sessionId);
+        const createdId = (result as { sessionId?: string }).sessionId;
+        if (createdId) await attachSession(createdId);
       }
       if (command === "terminal_session_list" && Array.isArray(result)) {
         await Promise.all(

@@ -69,6 +69,40 @@ describe("terminal-runtime web client", () => {
     expect(chunks.join("")).toContain("out:pwd");
     bridge.dispose();
   });
+
+  it("reattaches session planes on write after the previous client disconnects", async () => {
+    server = await startTerminalRuntimeServer({
+      port: 0,
+      bind: "127.0.0.1",
+      token: TOKEN,
+      workspace: "/tmp/terminal-host-client",
+      sessions,
+    });
+    const first = createTerminalRuntimeBridge({
+      url: `ws://127.0.0.1:${server.port}`,
+      token: TOKEN,
+    });
+    const created = await first.invoke<{ sessionId: string }>(
+      "terminal_session_create",
+      { cols: 80, rows: 24 },
+    );
+    first.dispose();
+    const second = createTerminalRuntimeBridge({
+      url: `ws://127.0.0.1:${server.port}`,
+      token: TOKEN,
+    });
+    const chunks: string[] = [];
+    second.onTerminalOutput?.((event) => {
+      chunks.push(Buffer.from(event.data, "base64").toString("utf8"));
+    });
+    await second.invoke("terminal_session_write", {
+      sessionId: created.sessionId,
+      data: Buffer.from("ls\n").toString("base64"),
+    });
+    await waitFor(() => chunks.some((chunk) => chunk.includes("out:ls")));
+    expect(chunks.join("")).toContain("out:ls");
+    second.dispose();
+  });
 });
 
 async function waitFor(predicate: () => boolean): Promise<void> {

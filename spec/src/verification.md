@@ -11,6 +11,7 @@
 | TH-PROTO-004 | Implemented | protocol constants and command-socket tests cover the five session commands |
 | TH-PROTO-005 | Implemented | ws-server attaches `/terminal/io` and `/terminal/control` with session and client ids |
 | TH-PROTO-006 | Implemented | client.ts exports attach helpers; package docs forbid plugin runtime imports |
+| TH-PROTO-007 | Implemented | client test reattaches io after dispose and still forwards write output |
 | TH-SESS-001 | Implemented | shell.ts resolves `$SHELL -i` / Windows COMSPEC and session-service tests spawn through the injected PTY |
 | TH-SESS-002 | Implemented | cwd tests reject paths that escape the workspace root |
 | TH-SESS-003 | Implemented | session-service tests cover create, write, resize, stop, list, attach, and snapshot |

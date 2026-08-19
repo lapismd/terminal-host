@@ -20,3 +20,6 @@ MUST update the mapped chapter in the same Jujutsu change.
 | `src/pty-session.ts`, `src/session-service.ts`, `src/shell.ts`, `src/cwd.ts` | `sessions.md` |
 | `package.json`, `src/index.ts`, `bin/`, `scripts/` | `architecture.md` |
 | `spec-validator.config.mjs`, `AGENTS.md`, `pnpm-workspace.yaml`, `spec/book.toml` | `spec-governance.md` |
+
+Tracked `AGENTS.md` is standing workflow: after a verified slice, commit with
+Jujutsu. Do not wait for a later user request.

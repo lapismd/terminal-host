@@ -2,11 +2,11 @@
   "name": "@lapismd/terminal-host",
   "private": true,
   "version": "0.0.0",
-  "description": "Standalone PTY process host and authenticated WebSocket server for LapisMD terminals",
+  "description": "Deno PTY process host and authenticated WebSocket server for LapisMD terminals",
   "license": "AGPL-3.0-or-later",
   "packageManager": "pnpm@10.32.1",
   "engines": {
-    "node": ">=22"
+    "deno": ">=2.9.5"
   },
   "type": "module",
   "main": "./src/index.ts",
@@ -15,11 +15,11 @@
     "lapis-terminal-host": "./bin/lapis-terminal-host.mjs"
   },
   "scripts": {
-    "build": "tsc -p tsconfig.json && node scripts/bundle-cli.mjs",
-    "serve:local": "tsx scripts/serve-local.mjs",
+    "build": "deno check src/index.ts src/client.ts src/cli.ts",
+    "serve:local": "deno run -A scripts/serve-local.ts",
     "check": "pnpm spec:validate && pnpm check:types",
-    "check:types": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run",
+    "check:types": "deno check src/index.ts src/client.ts src/cli.ts",
+    "test": "vitest run src/session-service.test.ts src/cwd.test.ts src/shell.test.ts src/parse-cli.test.ts && deno test -A tests/deno",
     "spec:build": "spec-validator build",
     "spec:check": "spec-validator check",
     "spec:first": "spec-validator first",
@@ -27,28 +27,26 @@
   },
   "exports": {
     ".": {
-      "types": "./dist/index.d.ts",
+      "types": "./src/index.ts",
       "import": "./src/index.ts",
       "default": "./src/index.ts"
     },
     "./client": {
-      "types": "./dist/client.d.ts",
+      "types": "./src/client.ts",
       "import": "./src/client.ts",
       "default": "./src/client.ts"
     },
+    "./deno": {
+      "types": "./src/deno.ts",
+      "import": "./src/deno.ts",
+      "default": "./src/deno.ts"
+    },
+    "./native-artifacts.json": "./native-artifacts.json",
     "./package.json": "./package.json"
   },
-  "dependencies": {
-    "node-pty": "^1.2.0-beta.13",
-    "ws": "^8.18.3"
-  },
+  "dependencies": {},
   "devDependencies": {
     "@lapismd/spec-validator": "link:../spec-validator",
-    "@types/node": "^22.10.5",
-    "@types/ws": "^8.18.1",
-    "esbuild": "^0.27.4",
-    "tsx": "^4.23.1",
-    "typescript": "~5.9.3",
     "vitest": "^4.1.8"
   }
 }

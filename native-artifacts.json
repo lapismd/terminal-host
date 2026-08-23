@@ -1,0 +1,22 @@
+{
+  "version": "0.42.0",
+  "baseUrl": "https://github.com/sigmaSd/deno-pty-ffi/releases/download/0.42.0",
+  "targets": {
+    "aarch64-apple-darwin": {
+      "file": "libpty_arm64.dylib",
+      "sha256": "9ef80c02777bd7bd64ba5a1a0a52203ce1b7c216badf588059eb9e4a86b6d51c"
+    },
+    "x86_64-apple-darwin": {
+      "file": "libpty_x86_64.dylib",
+      "sha256": "a293569b09dd50d2a69b8bb1cf637d3d95855e9882b2560994166307154ac22c"
+    },
+    "aarch64-unknown-linux-gnu": {
+      "file": "libpty_aarch64.so",
+      "sha256": "d1ba3d53e3e18962faa76f903809420a7a8038bbd79524865479218caf7191e9"
+    },
+    "x86_64-unknown-linux-gnu": {
+      "file": "libpty_x86_64.so",
+      "sha256": "b69e40b779edd4978a83ff4a1fa52b570c713a5e826a721dc637246b4000c66a"
+    }
+  }
+}

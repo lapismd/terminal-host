@@ -1,7 +1,7 @@
 # Protocol
 
-Authenticated remote clients attach with a URL and token. Electron embeds the
-session service in-process and MUST NOT require the renderer to hold the token.
+Authenticated remote clients attach with a URL and token. Deno desktop embeds
+the session service in-process and does not require a token.
 
 ## Requirements
 

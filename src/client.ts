@@ -59,7 +59,7 @@ function sessionPlaneUrl(
   return target.toString();
 }
 
-function bytesToBase64(data: ArrayBuffer | Buffer | Uint8Array | string): string {
+function bytesToBase64(data: ArrayBuffer | Uint8Array | string): string {
   if (typeof data === "string") {
     return btoa(unescape(encodeURIComponent(data)));
   }

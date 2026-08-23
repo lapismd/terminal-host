@@ -14,21 +14,17 @@ export async function runCli(
     (options?.stderr ?? console.error)(parsed.error);
     return 2;
   }
-
   const host = await serveTerminalHost(parsed.args, { print: options?.stdout });
   const shutdown = async () => {
     await host.close();
-    process.exit(0);
+    Deno.exit(0);
   };
-  process.once("SIGINT", () => {
-    void shutdown();
-  });
-  process.once("SIGTERM", () => {
-    void shutdown();
-  });
+  Deno.addSignalListener("SIGINT", () => void shutdown());
+  Deno.addSignalListener("SIGTERM", () => void shutdown());
   return 0;
 }
 
-void runCli(process.argv.slice(2)).then((code) => {
-  if (code !== 0) process.exit(code);
-});
+if (import.meta.main) {
+  const code = await runCli(Deno.args);
+  if (code !== 0) Deno.exit(code);
+}

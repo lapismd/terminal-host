@@ -1,17 +1,17 @@
-import { randomBytes, timingSafeEqual } from "node:crypto";
-
 export function generateToken(): string {
-  return randomBytes(32).toString("base64url");
+  const bytes = crypto.getRandomValues(new Uint8Array(32));
+  let binary = "";
+  for (const byte of bytes) binary += String.fromCharCode(byte);
+  return btoa(binary).replaceAll("+", "-").replaceAll("/", "_").replace(/=+$/u, "");
 }
 
 export function tokensEqual(expected: string, actual: string): boolean {
-  const left = Buffer.from(expected);
-  const right = Buffer.from(actual);
-  if (left.length !== right.length) {
-    timingSafeEqual(left, left);
-    return false;
+  const max = Math.max(expected.length, actual.length);
+  let difference = expected.length ^ actual.length;
+  for (let index = 0; index < max; index += 1) {
+    difference |= (expected.charCodeAt(index) || 0) ^ (actual.charCodeAt(index) || 0);
   }
-  return timingSafeEqual(left, right);
+  return difference === 0;
 }
 
 export function isLoopbackBind(bind: string): boolean {

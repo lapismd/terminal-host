@@ -6,6 +6,4 @@ linkWorkspacePackages: true
 overrides:
   "@lapismd/spec-validator": "link:../spec-validator"
 
-onlyBuiltDependencies:
-  - esbuild
-  - node-pty
+onlyBuiltDependencies: []

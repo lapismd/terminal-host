@@ -62,6 +62,10 @@ export default defineConfig(tableRequirements(), {
           chapters: ["spec/src/sessions.md"],
         },
         {
+          pattern: "^(?:src/(?:deno|deno-pty|native-library)\\.ts|native-artifacts\\.json)$",
+          chapters: ["spec/src/sessions.md", "spec/src/architecture.md"],
+        },
+        {
           pattern: "^(?:package\\.json$|src/index\\.ts$|bin/|scripts/)",
           chapters: ["spec/src/architecture.md"],
         },

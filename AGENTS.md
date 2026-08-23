@@ -7,8 +7,8 @@ This repository owns the standalone PTY host package `@lapismd/terminal-host`.
 - Keep interactive-shell spawn, session lifecycle, the authenticated WebSocket
   server, token handshake, restore snapshots, and `lapis-terminal-host` CLI
   here.
-- Consumer hosts (Electron, web, a Node Lapis backend) attach through public
-  exports. Do not move vault, workspace layout, or plugin policy here.
+- Consumer hosts (Deno desktop and web) attach through public exports. Do not
+  move vault, workspace layout, or plugin policy here.
 - Consumer plugins MUST NOT depend on this package at runtime.
 
 ## Canonical specification

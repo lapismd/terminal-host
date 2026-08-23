@@ -1,7 +1,10 @@
-import { randomUUID } from "node:crypto";
 import { resolveSessionCwd } from "./cwd";
-import { PtySession, type PtyLike, type SpawnPty } from "./pty-session";
-import { inheritSessionEnvironment, resolveInteractiveShellCommand } from "./shell";
+import type { PtyLike, SpawnPty } from "./pty-session";
+import {
+  inheritSessionEnvironment,
+  resolveInteractiveShellCommand,
+  type TerminalHostPlatform,
+} from "./shell";
 
 const MAX_SNAPSHOT_BYTES = 256 * 1024;
 
@@ -18,7 +21,7 @@ export type TerminalSessionSummary = {
 };
 
 export type TerminalSessionListener = {
-  onOutput?: (chunk: Buffer) => void;
+  onOutput?: (chunk: Uint8Array) => void;
   onExit?: (code: number | null) => void;
 };
 
@@ -32,7 +35,7 @@ export type CreateTerminalSessionRequest = {
 export type TerminalSessionService = {
   create(request?: CreateTerminalSessionRequest): TerminalSessionSummary;
   list(): TerminalSessionSummary[];
-  write(sessionId: string, data: string | Buffer): boolean;
+  write(sessionId: string, data: string | Uint8Array): boolean;
   resize(sessionId: string, cols: number, rows: number): boolean;
   stop(sessionId: string): TerminalSessionSummary | null;
   attach(sessionId: string, listener: TerminalSessionListener): (() => void) | null;
@@ -43,75 +46,56 @@ export type TerminalSessionService = {
 type SessionEntry = {
   summary: TerminalSessionSummary;
   process: PtyLike | null;
-  snapshot: Buffer;
+  snapshot: Uint8Array;
   listeners: Map<number, TerminalSessionListener>;
   nextListenerId: number;
 };
 
 export function createTerminalSessionService(options: {
   workspace: string;
-  spawn?: SpawnPty;
-  env?: NodeJS.ProcessEnv;
+  spawn: SpawnPty;
+  env: Record<string, string | undefined>;
+  platform: TerminalHostPlatform;
 }): TerminalSessionService {
   const entries = new Map<string, SessionEntry>();
-  const spawn = options.spawn ?? ((request) => PtySession.spawn(request));
-
-  const summarize = (entry: SessionEntry): TerminalSessionSummary => ({
-    ...entry.summary,
-  });
+  const summarize = (entry: SessionEntry): TerminalSessionSummary => ({ ...entry.summary });
+  const finish = (entry: SessionEntry, exitCode: number | null): void => {
+    if (entry.summary.status === "exited") return;
+    entry.summary.status = "exited";
+    entry.summary.exitCode = exitCode;
+    entry.summary.pid = null;
+    entry.process = null;
+    for (const listener of entry.listeners.values()) listener.onExit?.(exitCode);
+  };
 
   const create = (request: CreateTerminalSessionRequest = {}): TerminalSessionSummary => {
     const cwd = resolveSessionCwd(options.workspace, request.cwd);
     const cols = positive(request.cols, 120);
     const rows = positive(request.rows, 40);
-    const sessionId = randomUUID();
-    const shell = resolveInteractiveShellCommand(
-      options.env,
-      process.platform,
-      request.shell,
-    );
+    const sessionId = crypto.randomUUID();
+    const shell = resolveInteractiveShellCommand(options.env, options.platform, request.shell);
     const entry: SessionEntry = {
-      summary: {
-        sessionId,
-        pid: null,
-        cwd,
-        cols,
-        rows,
-        status: "running",
-        exitCode: null,
-      },
+      summary: { sessionId, pid: null, cwd, cols, rows, status: "running", exitCode: null },
       process: null,
-      snapshot: Buffer.alloc(0),
+      snapshot: new Uint8Array(),
       listeners: new Map(),
       nextListenerId: 1,
     };
-    const pty = spawn({
+    const pty = options.spawn({
       binary: shell.binary,
       args: shell.args,
       cwd,
-      env: inheritSessionEnvironment({
-        ...options.env,
-        TERM: "xterm-256color",
-        COLORTERM: "truecolor",
-        TERM_PROGRAM: "lapis-terminal",
-      }),
+      env: inheritSessionEnvironment(
+        { TERM: "xterm-256color", COLORTERM: "truecolor", TERM_PROGRAM: "lapis-terminal" },
+        options.env,
+      ),
       cols,
       rows,
       onData: (chunk) => {
         entry.snapshot = appendSnapshot(entry.snapshot, chunk);
-        for (const listener of entry.listeners.values()) {
-          listener.onOutput?.(chunk);
-        }
+        for (const listener of entry.listeners.values()) listener.onOutput?.(chunk);
       },
-      onExit: (event) => {
-        entry.summary.status = "exited";
-        entry.summary.exitCode = event.exitCode;
-        entry.summary.pid = null;
-        entry.process = null;
-        for (const listener of entry.listeners.values()) {
-          listener.onExit?.(event.exitCode);
-        }
-      },
+      onExit: (event) => finish(entry, event.exitCode),
     });
     entry.process = pty;
     entry.summary.pid = pty.pid;
@@ -121,9 +105,7 @@ export function createTerminalSessionService(options: {
 
   return {
     create,
-    list() {
-      return [...entries.values()].map(summarize);
-    },
+    list: () => [...entries.values()].map(summarize),
     write(sessionId, data) {
       const entry = entries.get(sessionId);
       if (!entry?.process || entry.summary.status !== "running") return false;
@@ -135,9 +117,7 @@ export function createTerminalSessionService(options: {
       if (!entry?.process || entry.summary.status !== "running") return false;
       const nextCols = positive(cols, entry.summary.cols);
       const nextRows = positive(rows, entry.summary.rows);
-      if (nextCols === entry.summary.cols && nextRows === entry.summary.rows) {
-        return true;
-      }
+      if (nextCols === entry.summary.cols && nextRows === entry.summary.rows) return true;
       entry.process.resize(nextCols, nextRows);
       entry.summary.cols = nextCols;
       entry.summary.rows = nextRows;
@@ -147,10 +127,7 @@ export function createTerminalSessionService(options: {
       const entry = entries.get(sessionId);
       if (!entry) return null;
       entry.process?.stop();
-      if (entry.summary.status === "running") {
-        entry.summary.status = "exited";
-        entry.summary.pid = null;
-      }
+      finish(entry, null);
       return summarize(entry);
     },
     attach(sessionId, listener) {
@@ -158,22 +135,17 @@ export function createTerminalSessionService(options: {
       if (!entry) return null;
       const id = entry.nextListenerId++;
       entry.listeners.set(id, listener);
-      return () => {
-        entry.listeners.delete(id);
-      };
+      return () => entry.listeners.delete(id);
     },
     getRestoreSnapshot(sessionId) {
       const entry = entries.get(sessionId);
       if (!entry) return null;
-      return {
-        snapshot: entry.snapshot.toString("utf8"),
-        cols: entry.summary.cols,
-        rows: entry.summary.rows,
-      };
+      return { snapshot: new TextDecoder().decode(entry.snapshot), cols: entry.summary.cols, rows: entry.summary.rows };
     },
     close() {
       for (const entry of entries.values()) {
         entry.process?.stop();
+        finish(entry, null);
       }
       entries.clear();
     },
@@ -184,8 +156,11 @@ function positive(value: number | undefined, fallback: number): number {
   return Number.isFinite(value) && (value ?? 0) > 0 ? Math.floor(value ?? 0) : fallback;
 }
 
-function appendSnapshot(current: Buffer, chunk: Buffer): Buffer {
-  const next = Buffer.concat([current, chunk]);
-  if (next.byteLength <= MAX_SNAPSHOT_BYTES) return next;
-  return next.subarray(next.byteLength - MAX_SNAPSHOT_BYTES);
+function appendSnapshot(current: Uint8Array, chunk: Uint8Array): Uint8Array {
+  const combined = new Uint8Array(current.byteLength + chunk.byteLength);
+  combined.set(current);
+  combined.set(chunk, current.byteLength);
+  return combined.byteLength <= MAX_SNAPSHOT_BYTES
+    ? combined
+    : combined.slice(combined.byteLength - MAX_SNAPSHOT_BYTES);
 }

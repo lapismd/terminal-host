@@ -1,8 +1,10 @@
 import { isAbsolute } from "node:path";
 
+export type TerminalHostPlatform = "darwin" | "linux";
+
 export function resolveInteractiveShellCommand(
-  env: NodeJS.ProcessEnv = process.env,
-  platform: NodeJS.Platform = process.platform,
+  env: Record<string, string | undefined>,
+  platform: TerminalHostPlatform,
   requested?: string,
 ): { binary: string; args: string[] } {
   const override = requested?.trim();
@@ -10,33 +12,17 @@ export function resolveInteractiveShellCommand(
     if (!isAbsolute(override)) {
       throw new Error("Terminal session shell must be an absolute path");
     }
-    if (platform === "win32") {
-      return {
-        binary: override,
-        args: /powershell/iu.test(override) ? ["-NoLogo"] : [],
-      };
-    }
     return { binary: override, args: ["-il"] };
   }
 
-  if (platform === "win32") {
-    const command = env.COMSPEC?.trim();
-    if (command) {
-      return { binary: command, args: [] };
-    }
-    return { binary: "powershell.exe", args: ["-NoLogo"] };
-  }
-
   const command = env.SHELL?.trim();
-  if (command) {
-    return { binary: command, args: ["-il"] };
-  }
-  return { binary: "bash", args: ["-il"] };
+  if (command) return { binary: command, args: ["-il"] };
+  return { binary: platform === "darwin" ? "/bin/zsh" : "/bin/bash", args: ["-il"] };
 }
 
 export function inheritSessionEnvironment(
-  overrides: NodeJS.ProcessEnv = {},
-  parent: NodeJS.ProcessEnv = process.env,
+  overrides: Record<string, string | undefined> = {},
+  parent: Record<string, string | undefined> = {},
 ): Record<string, string> {
   const env: Record<string, string> = {};
   for (const [key, value] of Object.entries({ ...parent, ...overrides })) {

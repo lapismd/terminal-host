@@ -18,6 +18,7 @@ MUST update the mapped chapter in the same Jujutsu change.
 | `src/serve.ts`, `src/parse-cli.ts`, `src/cli.ts`, `src/token.ts` | `protocol.md` |
 | `src/ws-server.ts`, `src/protocol.ts`, `src/client.ts` | `protocol.md` |
 | `src/pty-session.ts`, `src/session-service.ts`, `src/shell.ts`, `src/cwd.ts` | `sessions.md` |
+| `src/deno.ts`, `src/deno-pty.ts`, `src/native-library.ts`, `native-artifacts.json` | `sessions.md`, `architecture.md` |
 | `package.json`, `src/index.ts`, `bin/`, `scripts/` | `architecture.md` |
 | `spec-validator.config.mjs`, `AGENTS.md`, `pnpm-workspace.yaml`, `spec/book.toml` | `spec-governance.md` |
 

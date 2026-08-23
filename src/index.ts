@@ -6,7 +6,8 @@ export {
   type TerminalSessionStatus,
   type TerminalSessionSummary,
 } from "./session-service";
-export { PtySession, type PtyLike, type SpawnPty, type SpawnPtySessionRequest } from "./pty-session";
+export type { PtyLike, SpawnPty, SpawnPtySessionRequest } from "./pty-session";
+export { createDenoTerminalSessionService } from "./deno";
 export { inheritSessionEnvironment, resolveInteractiveShellCommand } from "./shell";
 export { isPathWithinRoot, resolveSessionCwd } from "./cwd";
 export {

@@ -24,14 +24,6 @@ describe("resolveInteractiveShellCommand", () => {
     ).toThrow(/absolute path/i);
   });
 
-  it("uses COMSPEC on windows", () => {
-    expect(
-      resolveInteractiveShellCommand({ COMSPEC: "C:\\Windows\\System32\\cmd.exe" }, "win32"),
-    ).toEqual({
-      binary: "C:\\Windows\\System32\\cmd.exe",
-      args: [],
-    });
-  });
 });
 
 describe("inheritSessionEnvironment", () => {

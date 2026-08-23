@@ -19,6 +19,7 @@
 | TH-SESS-004 | Implemented | session-service attach tests fan output to two listeners |
 | TH-SESS-005 | Implemented | createTerminalSessionService is the public embed API used by tests without the CLI |
 | TH-SESS-006 | Implemented | session-service resize is a no-op when cols and rows are unchanged |
+| TH-SESS-007 | Implemented | session-service tests preserve a null pid from an injected PTY adapter |
 | TH-GOV-001 | Implemented | spec/book.toml and spec:build |
 | TH-GOV-002 | Implemented | spec-validator mapped spec-first rules |
 | TH-GOV-003 | Implemented | one verification row per requirement ID |

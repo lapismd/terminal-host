@@ -107,4 +107,21 @@ describe("createTerminalSessionService", () => {
     expect(() => service.create({ shell: "zsh" })).toThrow(/absolute path/i);
     service.close();
   });
+
+  it("accepts an injected PTY adapter without a public process id", () => {
+    const service = createTerminalSessionService({
+      workspace: "/tmp/terminal-host-null-pid",
+      spawn: () => ({
+        pid: null,
+        write() {},
+        resize() {},
+        pause() {},
+        resume() {},
+        stop() {},
+      }),
+    });
+
+    expect(service.create().pid).toBeNull();
+    service.close();
+  });
 });

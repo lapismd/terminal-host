@@ -18,7 +18,7 @@ export interface SpawnPtySessionRequest {
 }
 
 export interface PtyLike {
-  readonly pid: number;
+  readonly pid: number | null;
   write(data: string | Buffer): void;
   resize(cols: number, rows: number): void;
   pause(): void;
@@ -121,4 +121,3 @@ export class PtySession implements PtyLike {
     terminatePtyProcess(this.ptyProcess);
   }
 }
-

@@ -13,3 +13,4 @@ outside this package.
 | TH-SESS-004 | Multiple viewers of one session MUST receive the same output. A slow viewer MUST pause shared output until acknowledgements drain or that viewer disconnects. |
 | TH-SESS-005 | Electron and a Node backend MUST be able to embed `createTerminalSessionService()` without starting the CLI. Workspace root for desktop MUST be the vault filesystem path supplied by the host. |
 | TH-SESS-006 | `resize` MUST return success and MUST NOT call the PTY when cols and rows are already the session size. |
+| TH-SESS-007 | The public injected PTY boundary MUST accept a `null` process id when an adapter does not expose its child pid. Session summaries MUST preserve that value without weakening lifecycle ownership. |

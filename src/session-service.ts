@@ -39,6 +39,7 @@ export type TerminalSessionService = {
   resize(sessionId: string, cols: number, rows: number): boolean;
   stop(sessionId: string): TerminalSessionSummary | null;
   attach(sessionId: string, listener: TerminalSessionListener): (() => void) | null;
+  getRestoreBytes(sessionId: string): { snapshot: Uint8Array; cols: number; rows: number } | null;
   getRestoreSnapshot(sessionId: string): { snapshot: string; cols: number; rows: number } | null;
   close(): void;
 };
@@ -136,6 +137,15 @@ export function createTerminalSessionService(options: {
       const id = entry.nextListenerId++;
       entry.listeners.set(id, listener);
       return () => entry.listeners.delete(id);
+    },
+    getRestoreBytes(sessionId) {
+      const entry = entries.get(sessionId);
+      if (!entry) return null;
+      return {
+        snapshot: entry.snapshot.slice(),
+        cols: entry.summary.cols,
+        rows: entry.summary.rows,
+      };
     },
     getRestoreSnapshot(sessionId) {
       const entry = entries.get(sessionId);

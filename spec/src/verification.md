@@ -16,7 +16,7 @@
 | TH-PROTO-008 | Implemented | Deno runtime test observes spawn output exactly once through control restore before live I/O |
 | TH-SESS-001 | Implemented | Deno PTY integration uses `$SHELL -il`, inherits PATH, and rejects a relative shell override |
 | TH-SESS-002 | Implemented | cwd tests reject paths that escape the workspace root |
-| TH-SESS-003 | Implemented | session-service tests cover raw bytes, create, write, resize, stop, list, attach, snapshot, and exit-once behavior |
+| TH-SESS-003 | Implemented | session-service tests cover arbitrary live and restore bytes, create, write, resize, stop, list, attach, and exit-once behavior |
 | TH-SESS-004 | Implemented | session-service test fans output to two listeners and detaches one independently |
 | TH-SESS-005 | Implemented | createDenoTerminalSessionService is shared by the CLI and embedded desktop export |
 | TH-SESS-006 | Implemented | session-service resize is a no-op when cols and rows are unchanged |

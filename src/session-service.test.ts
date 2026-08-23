@@ -75,7 +75,19 @@ describe("createTerminalSessionService", () => {
     service.attach(created.sessionId, { onOutput: (chunk) => received.push(chunk) });
     spawned[0]?.emitData("héllo");
     expect(new TextDecoder().decode(received[0])).toBe("héllo");
+    expect([...service.getRestoreBytes(created.sessionId)!.snapshot]).toEqual([
+      ...new TextEncoder().encode("héllo"),
+    ]);
     expect(service.getRestoreSnapshot(created.sessionId)?.snapshot).toBe("héllo");
+  });
+
+  it("preserves arbitrary non-UTF-8 restore bytes", () => {
+    const { service, spawned } = createService();
+    const created = service.create();
+    spawned[0]?.request.onData?.(new Uint8Array([0, 255, 195, 40]));
+    expect([...service.getRestoreBytes(created.sessionId)!.snapshot]).toEqual([
+      0, 255, 195, 40,
+    ]);
   });
 
   it("keeps remaining viewers attached when one viewer detaches", () => {

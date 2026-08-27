@@ -62,21 +62,23 @@ export default defineConfig(tableRequirements(), {
           chapters: ["spec/src/sessions.md"],
         },
         {
-          pattern: "^(?:src/(?:deno|deno-pty|native-library)\\.ts|native-artifacts\\.json)$",
+          pattern:
+            "^(?:src/(?:deno|deno-pty|native-library)\\.ts|native-artifacts\\.json)$",
           chapters: ["spec/src/sessions.md", "spec/src/architecture.md"],
         },
         {
-          pattern: "^(?:package\\.json$|src/index\\.ts$|bin/|scripts/)",
+          pattern:
+            "^(?:package\\.json$|src/index\\.ts$|bin/|scripts/|\\.changeset/|\\.github/workflows/|CHANGELOG\\.md$|LICENSE\\.md$|README\\.md$)",
           chapters: ["spec/src/architecture.md"],
         },
         {
           pattern:
-            "^(?:spec-validator\\.config\\.mjs$|AGENTS\\.md$|pnpm-workspace\\.yaml$|spec/book\\.toml$)",
+            "^(?:spec-validator\\.config\\.mjs$|AGENTS\\.md$|pnpm-workspace\\.yaml$|spec/book\\.toml$|\\.gitignore$)",
           chapters: ["spec/src/spec-governance.md"],
         },
       ],
       protected: [
-        "^(?:src/|package\\.json$|bin/|scripts/|spec-validator\\.config\\.mjs$|AGENTS\\.md$|pnpm-workspace\\.yaml$)",
+        "^(?:src/|package\\.json$|bin/|scripts/|\\.changeset/|\\.github/workflows/|CHANGELOG\\.md$|LICENSE\\.md$|README\\.md$|\\.gitignore$|spec-validator\\.config\\.mjs$|AGENTS\\.md$|pnpm-workspace\\.yaml$)",
       ],
     },
   },

@@ -2,7 +2,7 @@
 
 | ID | Status | Evidence |
 | -- | ------ | -------- |
-| TH-PKG-001 | Implemented | package.json scripts, bin entry, and plugin-boundary README/AGENTS.md |
+| TH-PKG-001 | Implemented | package.json scripts, bin entry, plugin-boundary README/AGENTS.md, and npm-resolved `@lapismd/spec-validator` development tooling |
 | TH-PKG-002 | Implemented | scripts/serve-local.ts seeds ignored `.env` then runs the Deno serve command |
 | TH-PKG-003 | Implemented | package exports and README keep PTY/transport only |
 | TH-PKG-004 | Implemented | native-artifacts.json, checksum resolver tests, and explicit Deno PTY initialization |
@@ -22,5 +22,5 @@
 | TH-SESS-006 | Implemented | session-service resize is a no-op when cols and rows are unchanged |
 | TH-SESS-007 | Implemented | session-service tests preserve a null pid from an injected PTY adapter |
 | TH-GOV-001 | Implemented | spec/book.toml and spec:build |
-| TH-GOV-002 | Implemented | spec-validator mapped spec-first rules |
+| TH-GOV-002 | Implemented | spec-validator mapped spec-first rules and root pnpm workspace policy without a local validator override |
 | TH-GOV-003 | Implemented | one verification row per requirement ID |

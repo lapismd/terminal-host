@@ -3,7 +3,4 @@ packages:
 
 linkWorkspacePackages: true
 
-overrides:
-  "@lapismd/spec-validator": "link:../spec-validator"
-
 onlyBuiltDependencies: []

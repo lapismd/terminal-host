@@ -63,6 +63,8 @@
   "workspace": {
     "packageJson": {
       "dependencies": [
+        "npm:@lapismd/spec-validator@0.1.0",
+        "npm:@types/node@22.20.1",
         "npm:vitest@^4.1.8"
       ]
     }

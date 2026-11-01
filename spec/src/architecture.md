@@ -1,5 +1,9 @@
 # Architecture
 
+<!-- dependency-automation-policy -->
+
+Dependency update PRs from the trusted LapisMD App, Dependabot or Renovate MAY skip specification checks using the PR author rather than the rerun actor. Functional checks remain required. The shared `lapismd/dependency-automation` coordinator proposes published first-party npm updates with Changeset release intent where required; it does not merge, publish, sign or deploy. This CI policy changes no runtime or public contract in this chapter.
+
 The package lives at the repository root and publishes built Deno entrypoints
 for the root library and `./deno`, a built browser bundle for `./client`, and
 the Deno-powered `lapis-terminal-host` CLI. The development-only `serve:local`
@@ -31,4 +35,4 @@ checkouts and workstation runs validate the same artifact shape.
 | TH-PKG-002 | The `serve:local` package script MUST remain development-only. It MUST seed an ignored `.env` `LAPIS_TERMINAL_HOST_TOKEN` when that file or key is missing, then start `lapis-terminal-host serve` with that token.                                                                                                                                                                                                                                                  |
 | TH-PKG-003 | The host MUST remain renderer-agnostic. VT sequence rendering MUST live in the consumer plugin, not in this package.                                                                                                                                                                                                                                                                                                                                                 |
 | TH-PKG-004 | The host MUST pin `@sigma/pty-ffi` and a target-specific native-library manifest. Downloaded libraries MUST match the recorded SHA-256 before loading. Packaged consumers MUST be able to supply a verified explicit library path.                                                                                                                                                                                                                                   |
-| TH-PKG-005 | Release automation MUST use Changesets for future version pull requests, rebuild the publishable `dist` entrypoints, build and validate the selected npm tarball before publication, use npm trusted publishing through the `npm-production` environment after trusted-publisher configuration, and create `terminal-host@<version>` GitHub tags/releases from the verified release manifest.                                         |
+| TH-PKG-005 | Release automation MUST use Changesets for future version pull requests, rebuild the publishable `dist` entrypoints, build and validate the selected npm tarball before publication, use npm trusted publishing through the `npm-production` environment after trusted-publisher configuration, and create `terminal-host@<version>` GitHub tags/releases from the verified release manifest.                                                                        |

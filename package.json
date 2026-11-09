@@ -39,11 +39,11 @@
     "lapis-terminal-host": "./bin/lapis-terminal-host.mjs"
   },
   "scripts": {
-    "build": "deno check src/index.ts src/client.ts src/cli.ts && node scripts/build-client.mjs",
+    "build": "deno check src/index.ts src/client.ts src/cli.ts && node scripts/build-client.mjs && cargo build --workspace",
     "serve:local": "deno run -A scripts/serve-local.ts",
-    "check": "pnpm spec:validate && pnpm check:types",
+    "check": "pnpm spec:validate && pnpm check:types && cargo fmt --all --check && cargo clippy --all-targets -- -D warnings",
     "check:types": "deno check src/index.ts src/client.ts src/cli.ts",
-    "test": "vitest run src/session-service.test.ts src/cwd.test.ts src/shell.test.ts src/parse-cli.test.ts && deno test -A tests/deno",
+    "test": "vitest run src/session-service.test.ts src/cwd.test.ts src/shell.test.ts src/parse-cli.test.ts && deno test -A tests/deno && cargo test --workspace",
     "checks:release": "pnpm spec:check && pnpm check && pnpm test && pnpm build",
     "changeset": "changeset",
     "packages:check": "pnpm release:check",
@@ -58,7 +58,8 @@
     "spec:build": "spec-validator build",
     "spec:check": "spec-validator check",
     "spec:first": "spec-validator first",
-    "spec:validate": "spec-validator validate"
+    "spec:validate": "spec-validator validate",
+    "spec:search": "spec-validator search"
   },
   "exports": {
     ".": {
@@ -85,7 +86,7 @@
   "devDependencies": {
     "@changesets/changelog-github": "^0.7.0",
     "@changesets/cli": "^2.31.1",
-    "@lapismd/spec-validator": "0.1.0",
+    "@lapismd/spec-validator": "^0.2.0",
     "@types/node": "22.20.1",
     "esbuild": "^0.27.4",
     "prettier": "^3.7.4",

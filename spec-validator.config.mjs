@@ -50,6 +50,10 @@ export default defineConfig(tableRequirements(), {
       ],
       rules: [
         {
+          pattern: "^(?:crates/|Cargo\\.(?:toml|lock)$)",
+          chapters: ["spec/src/sessions.md"],
+        },
+        {
           pattern: "^src/(?:serve|parse-cli|cli|token)\\.ts$",
           chapters: ["spec/src/protocol.md"],
         },
@@ -78,7 +82,7 @@ export default defineConfig(tableRequirements(), {
         },
       ],
       protected: [
-        "^(?:src/|package\\.json$|bin/|scripts/|\\.changeset/|\\.github/workflows/|CHANGELOG\\.md$|LICENSE\\.md$|README\\.md$|\\.gitignore$|spec-validator\\.config\\.mjs$|AGENTS\\.md$|pnpm-workspace\\.yaml$)",
+        "^(?:crates/|Cargo\\.(?:toml|lock)$|src/|package\\.json$|bin/|scripts/|\\.changeset/|\\.github/workflows/|CHANGELOG\\.md$|LICENSE\\.md$|README\\.md$|\\.gitignore$|spec-validator\\.config\\.mjs$|AGENTS\\.md$|pnpm-workspace\\.yaml$)",
       ],
     },
   },

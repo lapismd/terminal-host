@@ -30,3 +30,5 @@ published validator without weakening the mapped-change policy.
 
 Tracked `AGENTS.md` is standing workflow: after a verified slice, commit with
 Jujutsu. Do not wait for a later user request.
+
+Cargo workspace sources map to the Sessions chapter. Cargo check, test and build are part of the normal package lanes; spec tooling consumes the Deno-free registry validator.

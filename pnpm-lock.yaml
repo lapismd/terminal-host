@@ -14,8 +14,8 @@ importers:
         specifier: ^2.31.1
         version: 2.31.1(@types/node@22.20.1)
       "@lapismd/spec-validator":
-        specifier: 0.1.0
-        version: 0.1.0
+        specifier: 0.2.0
+        version: 0.2.0
       "@types/node":
         specifier: 22.20.1
         version: 22.20.1
@@ -644,18 +644,13 @@ packages:
         integrity: sha512-cYQ9310grqxueWbl+WuIUIaiUaDcj7WOq5fVhEljNVgRfOUhY9fy2zTvfoqWsnebh8Sl70VScFbICvJnLKB0Og==,
       }
 
-  "@lapismd/spec-validator@0.1.0":
+  "@lapismd/spec-validator@0.2.0":
     resolution:
       {
-        integrity: sha512-LixMQdIgdh96K4nEq3G31cRa26zQ830SvhLSp1AFufhP6lc1AS6PTyc/bV6JhlN6NC94PtgmBOBeq0VJGhQCFA==,
+        integrity: sha512-fUMh7fpoZXuMRAc5Jdo+Y2sUhAPeO5o5R5AIdwKEs/xNLS2W3mSSHimscxI58JuUEFPPk/SI+jE0Vcvv7gXdlw==,
       }
-    engines: { deno: 2.9.5, node: ">=22" }
+    engines: { node: ">=22" }
     hasBin: true
-    peerDependencies:
-      "@tobilu/qmd": 2.5.3
-    peerDependenciesMeta:
-      "@tobilu/qmd":
-        optional: true
 
   "@manypkg/find-root@1.1.0":
     resolution:
@@ -2221,7 +2216,7 @@ snapshots:
 
   "@jridgewell/sourcemap-codec@1.5.5": {}
 
-  "@lapismd/spec-validator@0.1.0":
+  "@lapismd/spec-validator@0.2.0":
     dependencies:
       jiti: 2.7.0
       typescript: 5.9.3

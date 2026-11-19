@@ -1,7 +1,7 @@
 [book]
-title = "Terminal Host Specification"
+title = "Terminal Host Rust Service Specification"
 authors = ["LapisMD contributors"]
-description = "Canonical requirements and verification evidence for @lapismd/terminal-host."
+description = "Canonical requirements and verification evidence for the private Lapis terminal Rust service."
 language = "en"
 src = "src"
 

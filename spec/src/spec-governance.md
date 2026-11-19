@@ -1,34 +1,22 @@
 # Specification governance
 
-Canonical requirements live under `spec/src`. Protected implementation changes
-MUST update the mapped chapter in the same Jujutsu change.
+Canonical current requirements live under `spec/src`. Protected Rust, Cargo,
+CI, audit and repository-guidance changes must update the owning chapter in the
+same Jujutsu change.
 
 ## Requirements
 
-| ID         | Requirement                                                                                                                                |
-| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| TH-GOV-001 | `spec/src` MUST remain the canonical standalone specification and MUST build with mdBook.                                                  |
-| TH-GOV-002 | Protected package, source, CLI, validation, and agent-guidance changes MUST update an owning canonical chapter in the same Jujutsu change. |
-| TH-GOV-003 | Every normative requirement ID MUST be unique and MUST have exactly one verification row with concrete evidence.                           |
+| ID         | Requirement                                                                                                                                                                          |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| TH-GOV-001 | `spec/src` MUST remain the canonical current specification and MUST build with mdBook.                                                                                               |
+| TH-GOV-002 | Protected Rust and Cargo changes MUST update `sessions.md`; CI, audit, repository-boundary, README, license or agent-guidance changes MUST update `architecture.md` or this chapter. |
+| TH-GOV-003 | Every normative requirement ID MUST be unique and MUST have exactly one verification row with concrete evidence.                                                                     |
+| TH-GOV-004 | The tracked Rust-only audit MUST fail when required Rust authority is missing or when retired npm, Deno, JavaScript, TypeScript, CLI, WebSocket, download or release paths return.   |
 
 ## Change map
 
-| Protected area                                                                                                                     | Required chapter                 |
-| ---------------------------------------------------------------------------------------------------------------------------------- | -------------------------------- |
-| `src/serve.ts`, `src/parse-cli.ts`, `src/cli.ts`, `src/token.ts`                                                                   | `protocol.md`                    |
-| `src/ws-server.ts`, `src/protocol.ts`, `src/client.ts`                                                                             | `protocol.md`                    |
-| `src/pty-session.ts`, `src/session-service.ts`, `src/shell.ts`, `src/cwd.ts`                                                       | `sessions.md`                    |
-| `src/deno.ts`, `src/deno-pty.ts`, `src/native-library.ts`, `native-artifacts.json`                                                 | `sessions.md`, `architecture.md` |
-| `package.json`, `src/index.ts`, `bin/`, `scripts/`, `.changeset/`, `.github/workflows/`, `CHANGELOG.md`, `LICENSE.md`, `README.md` | `architecture.md`                |
-| `spec-validator.config.mjs`, `AGENTS.md`, `pnpm-workspace.yaml`, `spec/book.toml`, `.gitignore`                                    | `spec-governance.md`             |
-
-The repository-owned validator configuration and pnpm workspace file remain
-governance inputs, but `@lapismd/spec-validator` itself is consumed as the
-published npm package when available. Removing a local validator override MUST
-keep this chapter in the same change so future spec gates exercise the
-published validator without weakening the mapped-change policy.
-
-Tracked `AGENTS.md` is standing workflow: after a verified slice, commit with
-Jujutsu. Do not wait for a later user request.
-
-Cargo workspace sources map to the Sessions chapter. Cargo check, test and build are part of the normal package lanes; spec tooling consumes the Deno-free registry validator.
+| Protected area                                                           | Required chapter                        |
+| ------------------------------------------------------------------------ | --------------------------------------- |
+| `Cargo.toml`, `Cargo.lock`, `crates/lapis-terminal-service/**`           | `sessions.md`                           |
+| `ci/check-rust-only.sh`, `.github/workflows/**`, `.gitignore`            | `architecture.md`, `spec-governance.md` |
+| `AGENTS.md`, `README.md`, `CHANGELOG.md`, `LICENSE.md`, `spec/book.toml` | `architecture.md`, `spec-governance.md` |

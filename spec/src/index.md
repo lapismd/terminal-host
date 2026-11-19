@@ -1,12 +1,12 @@
 # Specification
 
-`@lapismd/terminal-host` is the standalone LapisMD PTY host. It owns
-interactive-shell sessions, `lapis-terminal-host serve`, the authenticated
-WebSocket protocol, and bounded restore snapshots.
+This repository owns the private Deno-free `lapis-terminal-service` Rust PTY
+engine consumed by native Lapis hosts through exact Git revisions.
 
-Deno desktop calls the library in-process. Web and Storybook attach only with
-a configured URL and token after the user starts the Deno CLI. Consumer
-plugins MUST NOT depend on this package at runtime.
+The former npm package, Deno runtime, CLI, WebSocket server and browser bridge
+are retired. Current authority covers only the Rust service, its repository
+boundaries and its validation. Historical artifacts and Git history remain
+preserved.
 
 Canonical requirements live in the following chapters. Verification evidence
 is indexed in [Verification](verification.md).

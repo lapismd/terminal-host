@@ -1,4 +1,4 @@
-use crate::{invalid, output::Replay};
+use crate::{ShellCommand, invalid, output::Replay};
 use portable_pty::{ChildKiller, CommandBuilder, MasterPty, PtySize, native_pty_system};
 use std::{
     io::{self, Read, Write},
@@ -31,12 +31,17 @@ pub(crate) fn size(cols: u16, rows: u16) -> io::Result<PtySize> {
     })
 }
 impl Session {
-    pub fn spawn(cwd: &Path, shell: &Path, cols: u16, rows: u16) -> io::Result<Self> {
+    pub fn spawn(cwd: &Path, shell: &ShellCommand, cols: u16, rows: u16) -> io::Result<Self> {
         let pair = native_pty_system()
             .openpty(size(cols, rows)?)
             .map_err(io::Error::other)?;
-        let mut command = CommandBuilder::new(shell);
-        command.arg("-il");
+        let mut command = CommandBuilder::new(&shell.program);
+        for arg in &shell.args {
+            command.arg(arg);
+        }
+        for (name, value) in &shell.env {
+            command.env(name, value);
+        }
         command.cwd(cwd);
         command.env("TERM", "xterm-256color");
         command.env("COLORTERM", "truecolor");

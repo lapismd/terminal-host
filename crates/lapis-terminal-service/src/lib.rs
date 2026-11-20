@@ -1,6 +1,8 @@
 //! Deno-free PTY ownership. Authentication and vault admission belong to hosts.
+mod command;
 mod output;
 mod session;
+pub use command::ShellCommand;
 pub use output::Output;
 use session::Session;
 use std::os::unix::fs::MetadataExt;
@@ -23,13 +25,17 @@ fn invalid(message: &'static str) -> io::Error {
 pub struct PtyService {
     root: PathBuf,
     identity: (u64, u64),
-    shell: PathBuf,
+    shell: ShellCommand,
     sessions: Mutex<HashMap<Uuid, Arc<Session>>>,
     closed: AtomicBool,
 }
 impl PtyService {
     pub fn new(root: &Path, shell: &Path) -> io::Result<Self> {
-        if !root.is_absolute() || !shell.is_absolute() {
+        Self::with_command(root, ShellCommand::login_interactive(shell))
+    }
+    /// Select shell arguments and environment through trusted host policy.
+    pub fn with_command(root: &Path, shell: ShellCommand) -> io::Result<Self> {
+        if !root.is_absolute() || !shell.program.is_absolute() {
             return Err(invalid("Terminal host paths must be absolute"));
         }
         let root = root.canonicalize()?;
@@ -40,7 +46,7 @@ impl PtyService {
         Ok(Self {
             root,
             identity: (metadata.dev(), metadata.ino()),
-            shell: shell.into(),
+            shell,
             sessions: Mutex::new(HashMap::new()),
             closed: AtomicBool::new(false),
         })

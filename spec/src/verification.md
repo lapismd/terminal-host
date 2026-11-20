@@ -12,7 +12,7 @@
 | TH-SESS-011 | Implemented | Rust source bounds sessions, writes and dimensions; real PTY tests cover session and dimension limits              |
 | TH-SESS-012 | Implemented | real PTY collection test observes raw output, running completion and exit code 7                                   |
 | TH-SESS-013 | Implemented | close regression fences new sessions and completes process-group shutdown within five seconds                      |
-| TH-SESS-014 | Implemented | Rust session spawn builds the admitted shell with `-il` and the required terminal environment                      |
+| TH-SESS-014 | Implemented | `pty.rs` and `shell_command.rs`: original `-il` defaults, real PTY custom argv/environment, exact literal values, exit status and absolute-program refusal                      |
 | TH-SESS-015 | Implemented | Rust source no-ops unchanged resize; real PTY test repeats one size successfully                                   |
 | TH-GOV-001  | Implemented | `spec/book.toml`, `spec/src/SUMMARY.md` and CI mdBook build                                                        |
 | TH-GOV-002  | Implemented | tracked change map names Rust/Cargo and repository policy owners                                                   |
